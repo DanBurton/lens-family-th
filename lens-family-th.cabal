@@ -32,3 +32,7 @@ source-repository head
   type:      git
   location:  git://github.com/DanBurton/lens-family-th.git
 
+source-repository this
+  type:      git
+  location:  git://github.com/DanBurton/lens-family-th.git
+  tag:       lens-family-th-0.1.0.0
