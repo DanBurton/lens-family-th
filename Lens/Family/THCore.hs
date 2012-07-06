@@ -1,26 +1,39 @@
 {-# LANGUAGE TemplateHaskell #-}
 
+-- | The shared functionality behind Lens.Family.TH and Lens.Family2.TH.
 module Lens.Family.THCore (
-    LensTypeInfo
+   defaultNameTransform
+  , LensTypeInfo
   , ConstructorFieldInfo
   , deriveLenses
-  , defaultNameTransform
   ) where
 
 import Language.Haskell.TH
+import Data.Char (toLower)
 
-
+-- | By default, if the field name begins with an underscore,
+-- then the underscore will simply be removed (and the new first character
+-- lowercased if necessary). Otherwise, the suffix "Lens" will be added.
 defaultNameTransform :: String -> String
-defaultNameTransform ('_':n) = n
+defaultNameTransform ('_':c:rest) = toLower c : rest
 defaultNameTransform n = n ++ "Lens"
 
-
+-- | Information about the larger type the lens will operate on.
 type LensTypeInfo = (Name, [TyVarBndr])
+
+-- | Information about the smaller type the lens will operate on.
 type ConstructorFieldInfo = (Name, Strict, Type)
 
 
-deriveLenses :: (Name -> LensTypeInfo -> ConstructorFieldInfo -> Q [Dec])
-             -> (String -> String) -> Name -> Q [Dec]
+-- | The true workhorse of lens derivation. This macro is parameterized
+-- by a macro that derives signatures, as well as a function that
+-- transforms names.
+deriveLenses ::
+     (Name -> LensTypeInfo -> ConstructorFieldInfo -> Q [Dec])
+     -- ^ the signature deriver
+  -> (String -> String)
+     -- ^ the name transformer
+  -> Name -> Q [Dec]
 deriveLenses sigDeriver nameTransform datatype = do
   typeInfo          <- extractLensTypeInfo datatype
   let derive1 = deriveLens sigDeriver nameTransform typeInfo

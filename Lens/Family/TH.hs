@@ -1,5 +1,19 @@
 {-# LANGUAGE TemplateHaskell #-}
 
+-- | Derive lenses for "Lens.Family".
+-- 
+-- Example usage:
+-- 
+-- 
+-- > {-# LANGUAGE TemplateHaskell -#}
+-- > 
+-- > import Lens.Family
+-- > import Lens.Family.TH
+-- > 
+-- > data Foo a = Foo { _bar :: Int, _baz :: a }
+-- >            deriving (Show, Read, Eq, ord)
+-- > $(mkLenses ''Foo)
+-- 
 module Lens.Family.TH (mkLenses, mkLensesBy) where
 
 import Language.Haskell.TH
