@@ -8,6 +8,9 @@ description:
   adequately displayed here. Please see
   <http://github.com/DanBurton/lens-family-th#readme>
   for a proper description.
+  .
+  (See <https://github.com/haskell/cabal/issues/968>
+  for the ticket I created regarding the defect.)
 
 
 homepage:            http://github.com/DanBurton/lens-family-th
