@@ -17,7 +17,7 @@ Usage:
 This will create lenses `bar` and `baz`.
 
 You can instead create these lenses by hand
-as explained by documentation at [Lens.Family.Unchecked]().
+as explained by documentation at [Lens.Family.Unchecked](http://hackage.haskell.org/packages/archive/lens-family-core/latest/doc/html/Lens-Family-Unchecked.html).
 
 `mkLenses` merely generates the following definition
 for each field, making use of Haskell's record update syntax:
