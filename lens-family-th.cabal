@@ -3,14 +3,39 @@ version:             0.1.0.0
 synopsis:            Template Haskell to generate lenses for
                      lens-family and lens-family-core
 
--- description:         
+description:
+  Example usage:
+  .
+  @
+  {-# LANGUAGE TemplateHaskell, Rank2Types -#}
+  .
+  import Lens.Family2
+  import Lens.Family2.TH
+  .
+  data Foo a = Foo { _bar :: Int, _baz :: a }
+  \          deriving (Show, Read, Eq, Ord)
+  $(mkLenses ''Foo)
+  @
+  .
+  You can instead create these lenses by hand
+  as explained by documentation at Lens.Family.Unchecked
+  .
+  @mkLenses@ merely generates the following definition
+  for each field, making use of Haskell's record update syntax:
+  .
+  @
+  lensName f a = (\x -> a { fieldName = x }) `fmap` (f (fieldName a))
+  @
+  .
+  @mkLenses@ will refuse to create lenses for data declarations
+  with more than 1 constructor.
 
-homepage:            http://github.com/DanBurton/lens-family
+homepage:            http://github.com/DanBurton/lens-family-th
 license:             BSD3
 license-file:        LICENSE
 author:              Dan Burton
 maintainer:          danburton.email@gmail.com
-copyright:           Copyright (C) 2012 Dan Burton
+copyright:           (c) Dan Burton 2012
 
 category:            Data
 build-type:          Simple
@@ -19,6 +44,8 @@ cabal-version:       >=1.8
 library
   exposed-modules:     Lens.Family.TH, Lens.Family2.TH, Lens.Family.THCore
   build-depends:       base ==4.*, template-haskell ==2.7.*
-  source-repository head
-    type:      git
-    location:  git://github.com/DanBurton/lens-family-th.git
+
+source-repository head
+  type:      git
+  location:  git://github.com/DanBurton/lens-family-th.git
+
