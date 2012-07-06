@@ -1,6 +1,6 @@
 {-# LANGUAGE TemplateHaskell, Rank2Types #-}
 
-module Lens.Family.TH (mkLenses, mkLensesBy) where
+module Lens.Family2.TH (mkLenses, mkLensesBy) where
 
 import Language.Haskell.TH
 import Lens.Family.THCore
