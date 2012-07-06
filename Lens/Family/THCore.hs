@@ -4,21 +4,28 @@ module Lens.Family.THCore (
     LensTypeInfo
   , ConstructorFieldInfo
   , deriveLenses
+  , defaultNameTransform
   ) where
 
 import Language.Haskell.TH
 
 
+defaultNameTransform :: String -> String
+defaultNameTransform ('_':n) = n
+defaultNameTransform n = n ++ "Lens"
+
+
 type LensTypeInfo = (Name, [TyVarBndr])
 type ConstructorFieldInfo = (Name, Strict, Type)
+
 
 deriveLenses :: (Name -> LensTypeInfo -> ConstructorFieldInfo -> Q [Dec])
              -> (String -> String) -> Name -> Q [Dec]
 deriveLenses sigDeriver nameTransform datatype = do
+  typeInfo          <- extractLensTypeInfo datatype
+  let derive1 = deriveLens sigDeriver nameTransform typeInfo
   constructorFields <- extractConstructorFields datatype
-  typeInfo <- extractLensTypeInfo datatype
-  concat `fmap`
-    mapM (deriveLens sigDeriver nameTransform typeInfo) constructorFields
+  concat `fmap` mapM derive1 constructorFields
 
 
 extractLensTypeInfo :: Name -> Q LensTypeInfo
@@ -59,10 +66,10 @@ deriveLens :: (Name -> LensTypeInfo -> ConstructorFieldInfo -> Q [Dec])
            -> LensTypeInfo -> ConstructorFieldInfo -> Q [Dec]
 deriveLens sigDeriver nameTransform ty field = do
   let (fieldName, _fieldStrict, _fieldType) = field
-      (_tyName, _tyVars) = ty
+      (_tyName, _tyVars) = ty  -- just to clarify what's here
       lensName = mkName $ nameTransform $ nameBase fieldName
-  body <- deriveLensBody lensName fieldName
   sig <- sigDeriver lensName ty field
+  body <- deriveLensBody lensName fieldName
   return $ sig ++ [body]
 
 

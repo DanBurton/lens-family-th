@@ -10,7 +10,7 @@ import Lens.Family.THCore
 -- a single-constructor data declaration,
 -- or for the record selector in a newtype declaration.
 mkLenses :: Name -> Q [Dec]
-mkLenses = mkLensesBy (drop 1)
+mkLenses = mkLensesBy defaultNameTransform
 
 -- | Derive lenses with the provided name transformation function.
 mkLensesBy :: (String -> String) -> Name -> Q [Dec]
