@@ -15,3 +15,14 @@ Usage:
     $(mkLenses ''Foo)
 
 This will create lenses `bar` and `baz`.
+
+You can instead create these lenses by hand
+as explained by documentation at [Lens.Family.Unchecked]().
+
+`mkLenses` merely generates the following definition
+for each field, making use of Haskell's record update syntax:
+
+    lensName f a = (\x -> a { fieldName = x }) `fmap` f (fieldName a)
+
+`mkLenses` will refuse to create lenses for data declarations
+with more than 1 constructor.
