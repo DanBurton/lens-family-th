@@ -11,7 +11,7 @@
 -- > import Lens.Family2.TH
 -- > 
 -- > data Foo a = Foo { _bar :: Int, _baz :: a }
--- >            deriving (Show, Read, Eq, ord)
+-- >            deriving (Show, Read, Eq, Ord)
 -- > $(mkLenses ''Foo)
 -- 
 module Lens.Family2.TH (mkLenses, mkLensesBy) where
