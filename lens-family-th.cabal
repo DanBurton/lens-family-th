@@ -14,6 +14,7 @@ description:
 
 
 homepage:            http://github.com/DanBurton/lens-family-th
+bug-reports:         http://github.com/DanBurton/lens-family-th/issues
 license:             BSD3
 license-file:        LICENSE
 author:              Dan Burton
