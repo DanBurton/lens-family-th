@@ -13,10 +13,11 @@ import Data.Char (toLower)
 
 -- | By default, if the field name begins with an underscore,
 -- then the underscore will simply be removed (and the new first character
--- lowercased if necessary). Otherwise, the suffix "Lens" will be added.
-defaultNameTransform :: String -> String
-defaultNameTransform ('_':c:rest) = toLower c : rest
-defaultNameTransform n = n ++ "Lens"
+-- lowercased if necessary).
+defaultNameTransform :: String -> Maybe String
+defaultNameTransform ('_':c:rest) = Just $ toLower c : rest
+defaultNameTransform _ = Nothing
+
 
 -- | Information about the larger type the lens will operate on.
 type LensTypeInfo = (Name, [TyVarBndr])
@@ -27,11 +28,12 @@ type ConstructorFieldInfo = (Name, Strict, Type)
 
 -- | The true workhorse of lens derivation. This macro is parameterized
 -- by a macro that derives signatures, as well as a function that
--- transforms names.
+-- filters and transforms names. Producing Nothing means that
+-- a lens should not be generated for the provided name.
 deriveLenses ::
      (Name -> LensTypeInfo -> ConstructorFieldInfo -> Q [Dec])
      -- ^ the signature deriver
-  -> (String -> String)
+  -> (String -> Maybe String)
      -- ^ the name transformer
   -> Name -> Q [Dec]
 deriveLenses sigDeriver nameTransform datatype = do
@@ -75,15 +77,18 @@ extractConstructorFields datatype = do
 -- Derive a lens for the given record selector
 -- using the given name transformation function.
 deriveLens :: (Name -> LensTypeInfo -> ConstructorFieldInfo -> Q [Dec])
-           -> (String -> String)
+           -> (String -> Maybe String)
            -> LensTypeInfo -> ConstructorFieldInfo -> Q [Dec]
 deriveLens sigDeriver nameTransform ty field = do
   let (fieldName, _fieldStrict, _fieldType) = field
       (_tyName, _tyVars) = ty  -- just to clarify what's here
-      lensName = mkName $ nameTransform $ nameBase fieldName
-  sig <- sigDeriver lensName ty field
-  body <- deriveLensBody lensName fieldName
-  return $ sig ++ [body]
+  case nameTransform (nameBase fieldName) of
+    Nothing       -> return []
+    Just lensNameStr -> do
+      let lensName = mkName lensNameStr
+      sig  <- sigDeriver lensName ty field
+      body <- deriveLensBody lensName fieldName
+      return $ sig ++ [body]
 
 
 -- Given a record field name,
