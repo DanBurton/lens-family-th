@@ -1,7 +1,6 @@
 name:                lens-family-th
 version:             0.2.0.0
-synopsis:            Template Haskell to generate lenses for
-                     lens-family and lens-family-core
+synopsis:            Generate lens-family style lenses
 
 description:
   Due to a cabal/hackage defect, curly braces cannot be
@@ -12,14 +11,15 @@ description:
   (See <https://github.com/haskell/cabal/issues/968>
   for the ticket I created regarding the defect.)
 
-
-homepage:            http://github.com/DanBurton/lens-family-th
-bug-reports:         http://github.com/DanBurton/lens-family-th/issues
 license:             BSD3
 license-file:        LICENSE
 author:              Dan Burton
-maintainer:          danburton.email@gmail.com
 copyright:           (c) Dan Burton 2012
+
+homepage:            http://github.com/DanBurton/lens-family-th#readme
+bug-reports:         http://github.com/DanBurton/lens-family-th/issues
+maintainer:          danburton.email@gmail.com
+
 
 category:            Data
 build-type:          Simple
@@ -28,6 +28,7 @@ cabal-version:       >=1.8
 library
   exposed-modules:     Lens.Family.TH, Lens.Family2.TH, Lens.Family.THCore
   build-depends:       base ==4.*, template-haskell >= 2.5 && < 2.8
+
 
 source-repository head
   type:      git
