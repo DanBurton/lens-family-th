@@ -13,7 +13,7 @@ To see the results of these ghci interactions on your own machine, run:
 > $(mkLenses ''Pair)
 
     [ghci]
-    let p = Pair '1' 1
+    let p = Pair '1' 1 :: Pair Char Int
     p ^. pairL
     p ^. pairR
     :m +Data.Char
