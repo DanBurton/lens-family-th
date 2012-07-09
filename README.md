@@ -5,7 +5,7 @@ Template Haskell to generate lenses for lens-family and lens-family-core.
 
 Usage:
 
-    {-# LANGUAGE TemplateHaskell, Rank2Types -#}
+    {-# LANGUAGE TemplateHaskell, Rank2Types #-}
 
     import Lens.Family2
     import Lens.Family2.TH
