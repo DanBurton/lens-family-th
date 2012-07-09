@@ -1,5 +1,5 @@
 name:                lens-family-th
-version:             0.1.0.0
+version:             0.2.0.0
 synopsis:            Template Haskell to generate lenses for
                      lens-family and lens-family-core
 
@@ -35,4 +35,4 @@ source-repository head
 source-repository this
   type:      git
   location:  git://github.com/DanBurton/lens-family-th.git
-  tag:       lens-family-th-0.1.0.0
+  tag:       lens-family-th-0.2.0.0
