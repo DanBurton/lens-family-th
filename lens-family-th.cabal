@@ -6,7 +6,7 @@ description:
   Due to a cabal/hackage defect, curly braces cannot be
   adequately displayed here. Please see
   <http://github.com/DanBurton/lens-family-th#readme>
-  for a proper description.
+  for a proper description of this package.
   .
   (See <https://github.com/haskell/cabal/issues/968>
   for the ticket I created regarding the defect.)
