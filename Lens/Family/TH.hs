@@ -12,10 +12,13 @@
 -- > 
 -- > data Foo a = Foo { _bar :: Int, _baz :: a }
 -- >            deriving (Show, Read, Eq, Ord)
--- > $(mkLenses ''Foo)
+-- > $(makeLenses ''Foo)
 -- 
 module Lens.Family.TH (
-    mkLenses
+    makeLenses
+  , makeLensesBy
+  , makeLensesFor
+  , mkLenses
   , mkLensesBy
   , mkLensesFor
   ) where
@@ -32,9 +35,13 @@ import Lens.Family.THCore
 -- 
 -- Example usage:
 -- 
--- $(mkLenses ''Foo)
+-- $(makeLenses ''Foo)
+makeLenses :: Name -> Q [Dec]
+makeLenses = makeLensesBy defaultNameTransform
+
+{-# DEPRECATED mkLenses "Use makeLenses instead." #-}
 mkLenses :: Name -> Q [Dec]
-mkLenses = mkLensesBy defaultNameTransform
+mkLenses = makeLenses
 
 
 -- | Derive lenses with the provided name transformation
@@ -44,21 +51,28 @@ mkLenses = mkLensesBy defaultNameTransform
 -- 
 -- Example usage:
 -- 
--- > $(mkLensesBy (\n -> Just (n ++ "L")) ''Foo)
+-- > $(makeLensesBy (\n -> Just (n ++ "L")) ''Foo)
+makeLensesBy :: (String -> Maybe String) -> Name -> Q [Dec]
+makeLensesBy = deriveLenses deriveLensSig
+
+{-# DEPRECATED mkLensesBy "Use makeLensesBy instead." #-}
 mkLensesBy :: (String -> Maybe String) -> Name -> Q [Dec]
-mkLensesBy = deriveLenses deriveLensSig
+mkLensesBy = makeLensesBy
 
 
 -- | Derive lenses, specifying explicit pairings of @(fieldName, lensName)@.
 -- 
 -- Example usage:
 -- 
--- > $(mkLensesFor [("_foo", "fooLens"), ("bar", "lbar")] ''Foo)
+-- > $(makeLensesFor [("_foo", "fooLens"), ("bar", "lbar")] ''Foo)
+makeLensesFor :: [(String, String)] -> Name -> Q [Dec]
+makeLensesFor fields = makeLensesBy (`lookup` fields)
+
+{-# DEPRECATED mkLensesFor "Use makeLensesFor instead." #-}
 mkLensesFor :: [(String, String)] -> Name -> Q [Dec]
-mkLensesFor fields = mkLensesBy (`lookup` fields)
+mkLensesFor = makeLensesFor
 
 
 -- TODO
 deriveLensSig :: Name -> LensTypeInfo -> ConstructorFieldInfo -> Q [Dec]
 deriveLensSig _ _ _ = return []
-
