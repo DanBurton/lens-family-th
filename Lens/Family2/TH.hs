@@ -18,6 +18,9 @@ module Lens.Family2.TH (
     makeLenses
   , makeLensesBy
   , makeLensesFor
+
+  , makeTraversals
+
   , mkLenses
   , mkLensesBy
   , mkLensesFor
