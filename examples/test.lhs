@@ -10,14 +10,14 @@ To see the results of these ghci interactions on your own machine, run:
 
 > data Pair a b = Pair { _pairL :: a, _pairR :: b }
 >               deriving (Eq, Show, Read, Ord)
-> $(mkLenses ''Pair)
+> $(makeLenses ''Pair)
 
     [ghci]
     let p = Pair '1' 1 :: Pair Char Int
     p ^. pairL
     p ^. pairR
     :m +Data.Char
-    (pairL ^%= digitToInt) p
-    (pairR ^%= intToDigit) p
-    (pairL ^= "foo") p
-    (pairR ^= "bar") p
+    (pairL %~ digitToInt) p
+    (pairR %~ intToDigit) p
+    (pairL .~ "foo") p
+    (pairR .~ "bar") p
