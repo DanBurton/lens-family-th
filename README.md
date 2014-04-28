@@ -38,7 +38,7 @@ you can use `makeTraversals`. For example:
     import Lens.Family2.TH
 
     data T a b c = A a | B b | C c
-    $(makeTraversals ''E)
+    $(makeTraversals ''T)
     
 Will create traversals `_A`, `_B`, and `_C` in this fashion:
 
