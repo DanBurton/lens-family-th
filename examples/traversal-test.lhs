@@ -8,7 +8,7 @@ To see the results of these ghci interactions on your own machine, run:
 > import Lens.Family2
 > import Lens.Family2.TH
 
-> data Opt a b c = A a | B b | C c
+> data Opt b c d = A | B b | C c d Int
 >                deriving (Eq, Show, Read, Ord)
 > $(makeTraversals ''Opt)
 

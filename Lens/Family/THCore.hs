@@ -124,9 +124,7 @@ extractConstructorInfo datatype = do
   let datatypeStr = nameBase datatype
   i <- reify datatype
   return $ case i of
-    TyConI (DataD    _ _ _ [] _)
-      -> error $ "Traversal derivation not yet supported: "
-         ++ "empty constructor in: " ++ datatypeStr
+    TyConI (DataD    _ _ _ [] _) -> []
     TyConI (DataD    _ _ _ fs _) -> fs
     TyConI (NewtypeD _ _ _ f  _) -> [f]
     _ -> error $ "Can't derive traversal for: " ++ datatypeStr
@@ -134,42 +132,69 @@ extractConstructorInfo datatype = do
 
 deriveTraversal :: (String -> Maybe String) -> LensTypeInfo -> Con -> Q [Dec]
 deriveTraversal nameTransform ty con = do
-  let (tyName, _tyVars) = ty  -- just to clarify what's here
+  let (tyName, _tyVars) = ty
       (cName, cTys) = case con of
         NormalC n tys -> (n, tys)
         RecC n tys -> (n, map (\(_n, s, t) -> (s, t)) tys)
-        InfixC _ n _
-          -> error $ "Traversal derivation not yet supported: "
-             ++ "infix constructor: " ++ nameBase n
+        InfixC t1 n t2 -> (n, [t1, t2])
         ForallC _ _ _
           -> error $ "Traversal derivation not supported: "
              ++ "forall'd constructor in: " ++ nameBase tyName
-  cTy <- case cTys of
-    [t] -> return t
-    -- TODO: this should be pretty easy to implement
-    _ -> error $ "Traversal derivation not yet supported: "
-         ++ "product constructor: " ++ nameBase cName
   case nameTransform (nameBase cName) of
     Nothing       -> return []
     Just lensNameStr -> do
       let lensName = mkName lensNameStr
       sig  <- return [] -- TODO
-      body <- deriveTraversalBody lensName cName
+      body <- deriveTraversalBody lensName cName (length cTys)
       return $ sig ++ [body]
 
 
-deriveTraversalBody :: Name -> Name -> Q Dec
-deriveTraversalBody lensName constructorName =
+deriveTraversalBody :: Name -> Name -> Int -> Q Dec
+deriveTraversalBody lensName constructorName nArgs =
   funD lensName [defLine, fallback] where
-    x = mkName "x"
+    argNames = mkArgNames nArgs "x"
+    newArgNames = mkArgNames nArgs "x'"
+    argTup = argTupFrom argNames
+    newArgPat = TildeP $ argPatFrom newArgNames
+    newArgVars = argVarsFrom newArgNames
     t = mkName "t"
     k = mkName "k"
+    constructorUncurried =
+      constructorUncurriedFrom constructorName newArgPat newArgVars
+    kApplied = AppE (VarE k) argTup
     defLine = clause defPats (normalB defBody) []
-    defPats = [varP k, conP constructorName [varP x]]
-    defBody = [| $(conE constructorName)
-                 `fmap` $(appE (varE k) (varE x))
+    defPats = [varP k, conP constructorName (map varP argNames)]
+    defBody = [| $(return constructorUncurried)
+                 `fmap` $(return kApplied)
                |]
     fallback = clause fallbackPats (normalB fallbackBody) []
     fallbackPats = [wildP, varP t]
     fallbackBody = [| pure $(varE t) |]
 
+constructorUncurriedFrom :: Name -> Pat -> [Exp] -> Exp
+constructorUncurriedFrom conN pat = LamE [pat] . mkBody where
+  mkBody = foldl AppE (ConE conN)
+
+unitPat :: Pat
+unitPat = TupP []
+
+unitExp :: Exp
+unitExp = TupE []
+
+argPatFrom :: [Name] -> Pat
+argPatFrom [] = unitPat
+argPatFrom [x] = VarP x
+argPatFrom xs = TupP (map VarP xs)
+
+argTupFrom :: [Name] -> Exp
+argTupFrom [] = unitExp
+argTupFrom [x] = VarE x
+argTupFrom xs = TupE (map VarE xs)
+
+argVarsFrom :: [Name] -> [Exp]
+argVarsFrom = map VarE
+
+mkArgNames :: Int -> String -> [Name]
+mkArgNames nArgs base = take nArgs . map toName $ [1 :: Int ..] where
+  toName 1 = mkName base
+  toName n = mkName (base ++ show n)
