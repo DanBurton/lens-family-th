@@ -114,8 +114,8 @@ makeTraversals = deriveTraversals (\s -> Just ('_':s))
 deriveTraversals :: (String -> Maybe String) -> Name -> Q [Dec]
 deriveTraversals nameTransform name = do
   typeInfo <- extractLensTypeInfo name
-  let derive1 = deriveTraversal nameTransform typeInfo
   constructors <- extractConstructorInfo name
+  let derive1 = deriveTraversal nameTransform typeInfo constructors
   concat `fmap` mapM derive1 constructors
 
 
@@ -124,34 +124,43 @@ extractConstructorInfo datatype = do
   let datatypeStr = nameBase datatype
   i <- reify datatype
   return $ case i of
-    TyConI (DataD    _ _ _ [] _) -> []
     TyConI (DataD    _ _ _ fs _) -> fs
     TyConI (NewtypeD _ _ _ f  _) -> [f]
     _ -> error $ "Can't derive traversal for: " ++ datatypeStr
 
 
-deriveTraversal :: (String -> Maybe String) -> LensTypeInfo -> Con -> Q [Dec]
-deriveTraversal nameTransform ty con = do
+deriveTraversal :: (String -> Maybe String) -> LensTypeInfo -> [Con] -> Con -> Q [Dec]
+deriveTraversal nameTransform ty cs con = do
   let (tyName, _tyVars) = ty
-      (cName, cTys) = case con of
-        NormalC n tys -> (n, tys)
-        RecC n tys -> (n, map (\(_n, s, t) -> (s, t)) tys)
-        InfixC t1 n t2 -> (n, [t1, t2])
-        ForallC _ _ _
-          -> error $ "Traversal derivation not supported: "
-             ++ "forall'd constructor in: " ++ nameBase tyName
-  case nameTransform (nameBase cName) of
+      (conN, nArgs) = getConInfo con
+  case nameTransform (nameBase conN) of
     Nothing       -> return []
     Just lensNameStr -> do
       let lensName = mkName lensNameStr
       sig  <- return [] -- TODO
-      body <- deriveTraversalBody lensName cName (length cTys)
+      body <- deriveTraversalBody lensName conN nArgs cs
       return $ sig ++ [body]
 
 
-deriveTraversalBody :: Name -> Name -> Int -> Q Dec
-deriveTraversalBody lensName constructorName nArgs =
-  funD lensName [defLine, fallback] where
+deconstructReconstruct :: Con -> String -> (Pat, Exp)
+deconstructReconstruct c nameBase = (pat, expr) where
+  pat = ConP conN (map VarP argNames)
+  expr = foldl AppE (ConE conN) (map VarE argNames)
+  (conN, nArgs) = getConInfo c
+  argNames = mkArgNames nArgs nameBase
+
+getConInfo :: Con -> (Name, Int)
+getConInfo con = case con of
+  NormalC n tys -> (n, length tys)
+  RecC n tys -> (n, length tys)
+  InfixC t1 n t2 -> (n, 2)
+  ForallC _ _ c
+    -> error $ "Traversal derivation not supported: "
+       ++ "forall'd constructor: " ++ nameBase (fst $ getConInfo c)
+
+deriveTraversalBody :: Name -> Name -> Int -> [Con] -> Q Dec
+deriveTraversalBody lensName constructorName nArgs cs =
+  funD lensName (defLine:fallbacks) where
     argNames = mkArgNames nArgs "x"
     newArgNames = mkArgNames nArgs "x'"
     argTup = argTupFrom argNames
@@ -167,9 +176,11 @@ deriveTraversalBody lensName constructorName nArgs =
     defBody = [| $(return constructorUncurried)
                  `fmap` $(return kApplied)
                |]
-    fallback = clause fallbackPats (normalB fallbackBody) []
-    fallbackPats = [wildP, varP t]
-    fallbackBody = [| pure $(varE t) |]
+    fallbacks = map fallbackFor $ filter (\c -> fst (getConInfo c) /= constructorName) cs
+    fallbackFor con = clause fallbackPats (normalB fallbackBody) [] where
+      (conPat, conApp) = deconstructReconstruct con "a"
+      fallbackPats = [wildP, pure conPat]
+      fallbackBody = [| pure $(pure conApp) |]
 
 constructorUncurriedFrom :: Name -> Pat -> [Exp] -> Exp
 constructorUncurriedFrom conN pat = LamE [pat] . mkBody where
