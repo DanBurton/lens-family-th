@@ -108,6 +108,14 @@ deriveLensBody lensName fieldName = funD lensName [defLine]
             |]
     record rec fld val = val >>= \v -> recUpdE (varE rec) [return (fld, v)]
 
+-- | Derive traversals for each constructor in
+-- a data or newtype declaration,
+-- Traversals will be named by prefixing the
+-- constructor name with an underscore.
+--
+-- Example usage:
+--
+-- > $(makeTraversals ''Foo)
 makeTraversals :: Name -> Q [Dec]
 makeTraversals = deriveTraversals (\s -> Just ('_':s))
 

@@ -38,7 +38,7 @@ import Lens.Family.THCore
 -- 
 -- Example usage:
 -- 
--- $(makeLenses ''Foo)
+-- > $(makeLenses ''Foo)
 makeLenses :: Name -> Q [Dec]
 makeLenses = makeLensesBy defaultNameTransform
 
