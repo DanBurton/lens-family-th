@@ -29,7 +29,7 @@ with more than 1 constructor.
 
 ----
 
-For data types with multiple constructors and one field each,
+For data types with multiple constructors,
 you can use `makeTraversals`. For example:
 
     {-# LANGUAGE TemplateHaskell, Rank2Types #-}
@@ -37,12 +37,20 @@ you can use `makeTraversals`. For example:
     import Lens.Family2
     import Lens.Family2.TH
 
-    data T a b c = A a | B b | C c
+    data T a c d = A a | B | CD c d Int
     $(makeTraversals ''T)
     
 Will create traversals `_A`, `_B`, and `_C` in this fashion:
 
-    _A k (A a) = fmap A (k a)
-    _A _  t    = pure t
+    _A k (A a) = fmap (\a -> A a) (k a)
+    _A _  B    = pure B
+    _A _ (C c d i) = pure (C c d i)
 
-Repeated for each constructor.
+    _B _ (A a) = pure (A a)
+    _B k B = fmap (\() -> B) (k ())
+    _B _ (C c d i) = pure (C c d i)
+    
+    _C _ (A a) = pure (A a)
+    _C _ B = pure B
+    _C k (C c d i) = fmap (\(c',d',i') -> C c' d' i') (k (c,d,i))
+    
