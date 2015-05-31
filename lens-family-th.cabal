@@ -27,7 +27,7 @@ cabal-version:       >=1.8
 
 library
   exposed-modules:     Lens.Family.TH, Lens.Family2.TH, Lens.Family.THCore
-  build-depends:       base ==4.*, template-haskell >= 2.5
+  build-depends:       base ==4.*, template-haskell >= 2.7
 
 
 source-repository head
