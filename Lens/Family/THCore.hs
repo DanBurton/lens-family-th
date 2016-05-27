@@ -1,4 +1,5 @@
 {-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE TypeApplications #-}
 
 -- | The shared functionality behind Lens.Family.TH and Lens.Family2.TH.
 module Lens.Family.THCore (
@@ -49,9 +50,9 @@ extractLensTypeInfo :: Name -> Q LensTypeInfo
 extractLensTypeInfo datatype = do
   let datatypeStr = nameBase datatype
   i <- reify datatype
-  return $ case i of
-    TyConI (DataD    _ n ts _ _) -> (n, ts)
-    TyConI (NewtypeD _ n ts _ _) -> (n, ts)
+  return @Q $ case i of
+    TyConI (DataD    _ n ts _ _ _) -> (n, ts)
+    TyConI (NewtypeD _ n ts _ _ _) -> (n, ts)
     _ -> error $ "Can't derive Lens for: "  ++ datatypeStr
               ++ ", type name required."
 
@@ -60,10 +61,10 @@ extractConstructorFields :: Name -> Q [ConstructorFieldInfo]
 extractConstructorFields datatype = do
   let datatypeStr = nameBase datatype
   i <- reify datatype
-  return $ case i of
-    TyConI (DataD    _ _ _ [RecC _ fs] _) -> fs
-    TyConI (NewtypeD _ _ _ (RecC _ fs) _) -> fs
-    TyConI (DataD    _ _ _ [_]         _) ->
+  return @Q $ case i of
+    TyConI (DataD    _ _ _ _ [RecC _ fs] _) -> fs
+    TyConI (NewtypeD _ _ _ _ (RecC _ fs) _) -> fs
+    TyConI (DataD    _ _ _ _ [_]         _) ->
       error $ "Can't derive Lens without record selectors: " ++ datatypeStr
     TyConI NewtypeD{} ->
       error $ "Can't derive Lens without record selectors: " ++ datatypeStr
@@ -131,9 +132,9 @@ extractConstructorInfo :: Name -> Q [Con]
 extractConstructorInfo datatype = do
   let datatypeStr = nameBase datatype
   i <- reify datatype
-  return $ case i of
-    TyConI (DataD    _ _ _ fs _) -> fs
-    TyConI (NewtypeD _ _ _ f  _) -> [f]
+  return @Q $ case i of
+    TyConI (DataD    _ _ _ _ fs _) -> fs
+    TyConI (NewtypeD _ _ _ _ f  _) -> [f]
     _ -> error $ "Can't derive traversal for: " ++ datatypeStr
 
 
