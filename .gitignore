@@ -1,6 +1,7 @@
 dist
 cabal-dev
 .hsenv
+.stack-work
 *.o
 *.hi
 *.chi
