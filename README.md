@@ -1,6 +1,8 @@
 lens-family-th
 ==============
 
+![build status](https://api.travis-ci.org/DanBurton/lens-family-th.svg?branch=master)
+
 Template Haskell to generate lenses for lens-family and lens-family-core.
 
 Usage:
