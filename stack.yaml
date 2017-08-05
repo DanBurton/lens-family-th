@@ -1,4 +1,4 @@
 # http://docs.haskellstack.org/en/stable/yaml_configuration/
-resolver: nightly-2016-05-26
+resolver: nightly-2017-07-31
 packages:
 - '.'
