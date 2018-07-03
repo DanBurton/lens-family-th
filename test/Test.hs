@@ -1,10 +1,18 @@
 {-# LANGUAGE TemplateHaskell #-}
 
 import qualified Data.Char as Char
-import Lens.Family2 ((^.), (%~), (.~))
 import qualified Lens.Family2.TH as LFTH
 
+import Data.Functor.Constant (Constant(..))
+import Data.Functor.Identity (Identity(..))
 import Test.Hspec (hspec, describe, it, shouldBe)
+
+
+-- operators copied from lens-family-core
+x ^. l = getConstant $ l Constant x
+l %~ f = runIdentity . l (Identity . f)
+l .~ b = l %~ const b
+
 
 data Pair a b = Pair { _pairL :: a, _pairR :: b }
               deriving (Eq, Show, Read, Ord)
