@@ -1,4 +1,5 @@
 {-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE CPP             #-}
 
 -- | The shared functionality behind Lens.Family.TH and Lens.Family2.TH.
 module Lens.Family.THCore (
@@ -208,7 +209,13 @@ argPatFrom xs = TupP (map VarP xs)
 argTupFrom :: [Name] -> Exp
 argTupFrom [] = unitExp
 argTupFrom [x] = VarE x
-argTupFrom xs = TupE (map VarE xs)
+argTupFrom xs = TupE $
+  map (
+#if MIN_VERSION_template_haskell(2,16,0)
+    Just .
+#endif
+    VarE
+  ) xs
 
 argVarsFrom :: [Name] -> [Exp]
 argVarsFrom = map VarE
