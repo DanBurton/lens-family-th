@@ -209,13 +209,12 @@ argPatFrom xs = TupP (map VarP xs)
 argTupFrom :: [Name] -> Exp
 argTupFrom [] = unitExp
 argTupFrom [x] = VarE x
-argTupFrom xs = TupE $
-  map (
+argTupFrom xs =
 #if MIN_VERSION_template_haskell(2,16,0)
-    Just .
+  TupE $ map (Just . VarE) xs
+#else
+  TupE $ map VarE xs
 #endif
-    VarE
-  ) xs
 
 argVarsFrom :: [Name] -> [Exp]
 argVarsFrom = map VarE
