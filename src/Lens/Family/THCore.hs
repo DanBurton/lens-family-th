@@ -23,7 +23,12 @@ defaultNameTransform _ = Nothing
 
 
 -- | Information about the larger type the lens will operate on.
-type LensTypeInfo = (Name, [TyVarBndr])
+type LensTypeInfo =
+#if MIN_VERSION_template_haskell(2,17,0)
+  (Name, [TyVarBndr ()])
+#else
+  (Name, [TyVarBndr])
+#endif
 
 -- | Information about the smaller type the lens will operate on.
 type ConstructorFieldInfo = (Name, Strict, Type)
