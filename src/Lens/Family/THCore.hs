@@ -158,7 +158,12 @@ deriveTraversal nameTransform ty cs con = do
 
 deconstructReconstruct :: Con -> String -> (Pat, Exp)
 deconstructReconstruct c nameBase = (pat, expr) where
+#if MIN_VERSION_template_haskell(2,19,0)
+  -- ConP Name [Type] [Pat]
+  pat = ConP conN mempty (map VarP argNames)
+#else
   pat = ConP conN (map VarP argNames)
+#endif
   expr = foldl AppE (ConE conN) (map VarE argNames)
   (conN, nArgs) = getConInfo c
   argNames = mkArgNames nArgs nameBase
