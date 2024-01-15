@@ -17,16 +17,24 @@ jobs:
                   ghc: 9.8.1
                 - snapshot: lts-22.6
                   ghc: 9.6.3
-                # - lts-21.25 # ghc 9.4.8
-                # - lts-20.26 # ghc 9.2.8
-                # - lts-19.33 # ghc 9.0.2
-                # - lts-18.28 # ghc 8.10.7
-                # - lts-16.31 # ghc 8.8.4
-                # - lts-14.27 # ghc 8.6.5
-                # - lts-12.26 # ghc 8.4.4
-                # - lts-11.22 # ghc 8.2.2
-                # - lts-9.21  # ghc 8.0.2
-
+                - snapshot: lts-21.25
+                  ghc: 9.4.8
+                - snapshot: lts-20.26
+                  ghc: 9.2.8
+                - snapshot: lts-19.33
+                  ghc: 9.0.2
+                - snapshot: lts-18.28
+                  ghc: 8.10.7
+                - snapshot: lts-16.31
+                  ghc: 8.8.4
+                - snapshot: lts-14.27
+                  ghc: 8.6.5
+                - snapshot: lts-12.26
+                  ghc: 8.4.4
+                - snapshot: lts-11.22
+                  ghc: 8.2.2
+                - snapshot: lts-9.21
+                  ghc: 8.0.2
         steps:
         - uses: actions/checkout@v4
 
@@ -47,7 +55,7 @@ jobs:
                   ${{ runner.os }}-stack-${{ matrix.snapshot }}-
 
         - name: Dependencies
-          run: stack ${{ env.STACK_ARGS }} build --dependencies-only
+          run: stack ${{ env.STACK_ARGS }} test --dependencies-only
 
         - name: Build and Test
           run: |
