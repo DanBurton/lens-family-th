@@ -1,5 +1,5 @@
 name:                lens-family-th
-version:             0.5.2.1
+version:             0.5.3.0
 synopsis:            Generate lens-family style lenses
 
 description:         (see README.md)
@@ -18,6 +18,18 @@ build-type:          Simple
 cabal-version:       >=1.10
 
 extra-source-files:  README.md
+
+tested-with:         GHC == 9.8.1
+                   , GHC == 9.6.3
+                   , GHC == 9.4.8
+                   , GHC == 9.2.8
+                   , GHC == 9.0.2
+                   , GHC == 8.10.7
+                   , GHC == 8.8.4
+                   , GHC == 8.6.5
+                   , GHC == 8.4.4
+                   , GHC == 8.2.2
+                   , GHC == 8.0.2
 
 library
   default-language:  Haskell2010
@@ -40,5 +52,5 @@ test-suite lens-family-th-test
                    , template-haskell
 
 source-repository head
-  type:      git
-  location:  git://github.com/DanBurton/lens-family-th.git
+  type:              git
+  location:          git://github.com/DanBurton/lens-family-th.git
