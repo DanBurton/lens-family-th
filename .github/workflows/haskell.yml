@@ -1,0 +1,56 @@
+name: Haskell Stack CI
+
+on: [push, pull_request]
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+
+        strategy:
+            matrix:
+                stack-resolver:
+                - nightly-2024-01-15 # ghc-9.8.1
+                - lts-22.6  # ghc 9.6.3
+                - lts-21.25 # ghc 9.4.8
+                - lts-20.26 # ghc 9.2.8
+                - lts-19.33 # ghc 9.0.2
+                - lts-18.28 # ghc 8.10.7
+                - lts-16.31 # ghc 8.8.4
+                - lts-14.27 # ghc 8.6.5
+                - lts-12.26 # ghc 8.4.4
+                - lts-11.22 # ghc 8.2.2
+                - lts-9.21  # ghc 8.0.2
+
+        steps:
+        - uses: actions/checkout@v4
+
+        - name: Setup Haskell Stack
+          uses: actions/setup-haskell@v1
+          with:
+              ghc-version: 'latest' # or any specific version
+              enable-stack: true
+              stack-version: 'latest' # or any specific version
+
+        - name: Cache dependencies
+          id: cache-stack
+          uses: actions/cache@v3
+          with:
+              path: ~/.stack
+              key: ${{ runner.os }}-stack-${{ matrix.stack-resolver }}-${{ hashFiles('**/stack.yaml') }}
+              restore-keys: |
+                  ${{ runner.os }}-stack-${{ matrix.stack-resolver }}-
+
+        - if: ${{ steps.cache-stack.outputs.cache-hit == 'true' }}
+          name: Review cached dependencies
+          run: stack --no-terminal build --dependencies-only --dry-run
+
+        - name: Setup 
+          run: stack --no-terminal setup
+
+        - name: Dependencies
+          run: stack --no-terminal build --dependencies-only
+
+        - name: Build and Test
+          run: |
+            stack --no-terminal exec --resolver ${{ matrix.stack-resolver }} -- ghc --version
+            stack --no-terminal test --resolver ${{ matrix.stack-resolver }}
