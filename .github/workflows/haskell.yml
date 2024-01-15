@@ -6,12 +6,17 @@ jobs:
     build:
         runs-on: ubuntu-latest
 
+        env:
+            STACK_ARGS: --no-terminal --system-ghc --resolver=${{ matrix.snapshot }}
+
         strategy:
             fail-fast: false
             matrix:
-                stack-resolver:
-                - nightly-2024-01-15 # ghc-9.8.1
-                - lts-22.6  # ghc 9.6.3
+                include:
+                - snapshot: nightly-2024-01-15
+                  ghc: 9.8.1
+                - snapshot: lts-22.6
+                  ghc: 9.6.3
                 # - lts-21.25 # ghc 9.4.8
                 # - lts-20.26 # ghc 9.2.8
                 # - lts-19.33 # ghc 9.0.2
@@ -28,30 +33,23 @@ jobs:
         - name: Setup Haskell Stack
           uses: actions/setup-haskell@v1
           with:
-              ghc-version: 'latest' # or any specific version
+              ghc-version: ${{ matrix.ghc }}
               enable-stack: true
-              stack-version: 'latest' # or any specific version
+              stack-version: 'latest'
 
         - name: Cache dependencies
           id: cache-stack
           uses: actions/cache@v3
           with:
               path: ~/.stack
-              key: ${{ runner.os }}-stack-${{ matrix.stack-resolver }}-${{ hashFiles('**/stack.yaml') }}
+              key: ${{ runner.os }}-stack-${{ matrix.snapshot }}-${{ hashFiles('**/stack.yaml') }}
               restore-keys: |
-                  ${{ runner.os }}-stack-${{ matrix.stack-resolver }}-
-
-        - if: ${{ steps.cache-stack.outputs.cache-hit == 'true' }}
-          name: Review cached dependencies
-          run: stack --no-terminal build --dependencies-only --dry-run
-
-        - name: Setup 
-          run: stack --no-terminal setup
+                  ${{ runner.os }}-stack-${{ matrix.snapshot }}-
 
         - name: Dependencies
-          run: stack --no-terminal build --dependencies-only
+          run: stack ${{ env.STACK_ARGS }} build --dependencies-only
 
         - name: Build and Test
           run: |
-            stack --no-terminal exec --resolver ${{ matrix.stack-resolver }} -- ghc --version
-            stack --no-terminal test --resolver ${{ matrix.stack-resolver }}
+            stack ${{ env.STACK_ARGS }} exec -- ghc --version
+            stack ${{ env.STACK_ARGS }} test
