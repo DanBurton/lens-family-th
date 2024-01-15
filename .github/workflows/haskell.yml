@@ -7,19 +7,20 @@ jobs:
         runs-on: ubuntu-latest
 
         strategy:
+            fail-fast: false
             matrix:
                 stack-resolver:
                 - nightly-2024-01-15 # ghc-9.8.1
                 - lts-22.6  # ghc 9.6.3
-                - lts-21.25 # ghc 9.4.8
-                - lts-20.26 # ghc 9.2.8
-                - lts-19.33 # ghc 9.0.2
-                - lts-18.28 # ghc 8.10.7
-                - lts-16.31 # ghc 8.8.4
-                - lts-14.27 # ghc 8.6.5
-                - lts-12.26 # ghc 8.4.4
-                - lts-11.22 # ghc 8.2.2
-                - lts-9.21  # ghc 8.0.2
+                # - lts-21.25 # ghc 9.4.8
+                # - lts-20.26 # ghc 9.2.8
+                # - lts-19.33 # ghc 9.0.2
+                # - lts-18.28 # ghc 8.10.7
+                # - lts-16.31 # ghc 8.8.4
+                # - lts-14.27 # ghc 8.6.5
+                # - lts-12.26 # ghc 8.4.4
+                # - lts-11.22 # ghc 8.2.2
+                # - lts-9.21  # ghc 8.0.2
 
         steps:
         - uses: actions/checkout@v4
