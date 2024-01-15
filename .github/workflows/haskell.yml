@@ -1,4 +1,4 @@
-name: Haskell Stack CI
+name: Haskell tests
 
 on: [push, pull_request]
 
