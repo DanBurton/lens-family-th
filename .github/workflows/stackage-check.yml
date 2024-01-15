@@ -1,0 +1,52 @@
+name: Stackage Check
+on:
+    workflow_dispatch:
+        inputs:
+            package:
+                required: true
+            version:
+                required: true
+            snapshot:
+                required: true
+            ghc:
+                required: true
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        env:
+            STACK_ARGS: --system-ghc --no-terminal
+
+        steps:
+            - name: Setup Haskell Stack
+              uses: haskell-actions/setup@v2
+              with:
+                  ghc-version: ${{ inputs.ghc }}
+                  enable-stack: true
+                  stack-version: 'latest'
+
+            - name: Cache dependencies
+              id: cache-stack
+              uses: actions/cache@v3
+              with:
+                  path: ~/.stack
+                  key: ${{ runner.os }}-stack-${{ inputs.ghc }}-${{ inputs.snapshot }}-${{ inputs.version }}
+                  restore-keys: |
+                      ${{ runner.os }}-stack-${{ inputs.ghc }}-${{ inputs.snapshot }}-
+                      ${{ runner.os }}-stack-${{ inputs.ghc }}-
+
+            - name: Check package 
+              run: |
+                set -eu
+                dir="$(mktemp -d tmp.XXXX)"
+                cd "$dir"
+                stack ${{ env.STACK_ARGS }} unpack "${{ inputs.package }}-${{ inputs.version }}"
+                cd "$(ls | head -n 1)"
+                rm -f stack.yaml
+                cabal update && cabal outdated
+                stack ${{ env.STACK_ARGS }} init --resolver ${{ inputs.snapshot }}
+                stack ${{ env.STACK_ARGS }} build --haddock --test --bench --no-run-benchmarks
+                cat <<EOF
+
+                🎉 It looks good!
+                EOF
