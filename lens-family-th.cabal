@@ -1,5 +1,5 @@
 name:                lens-family-th
-version:             0.5.3.0
+version:             0.5.3.1
 synopsis:            Generate lens-family style lenses
 
 description:         (see README.md)
@@ -17,7 +17,7 @@ category:            Data
 build-type:          Simple
 cabal-version:       >=1.10
 
-extra-source-files:  README.md
+extra-source-files:  README.md, ChangeLog.md
 
 tested-with:         GHC == 9.8.1
                    , GHC == 9.6.3
