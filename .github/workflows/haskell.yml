@@ -7,7 +7,7 @@ jobs:
         runs-on: ubuntu-latest
 
         env:
-            STACK_ARGS: --no-terminal --system-ghc --resolver=${{ matrix.snapshot }}
+            STACK_ARGS: --no-terminal --system-ghc --resolver=${{ matrix.snapshot }} --compiler=ghc-${{ matrix.ghc }}
 
         strategy:
             fail-fast: false
