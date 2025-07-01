@@ -13,8 +13,12 @@ jobs:
             fail-fast: false
             matrix:
                 include:
-                - snapshot: nightly-2024-01-15
-                  ghc: 9.8.1
+                - snapshot: nightly-2025-07-01
+                  ghc: 9.12.2
+                - snapshot: nightly-2025-07-01
+                  ghc: 9.10.2
+                - snapshot: lts-23.26
+                  ghc: 9.8.4
                 - snapshot: lts-22.6
                   ghc: 9.6.3
                 - snapshot: lts-21.25
@@ -50,9 +54,9 @@ jobs:
           uses: actions/cache@v3
           with:
               path: ~/.stack
-              key: ${{ runner.os }}-stack-${{ matrix.snapshot }}-${{ hashFiles('**/stack.yaml') }}
+              key: ${{ runner.os }}-stack-${{ matrix.snapshot }}-${{ matrix.ghc }}-${{ hashFiles('**/stack.yaml') }}
               restore-keys: |
-                  ${{ runner.os }}-stack-${{ matrix.snapshot }}-
+                  ${{ runner.os }}-stack-${{ matrix.snapshot }}-${{ matrix.ghc }}-
 
         - name: Dependencies
           run: stack ${{ env.STACK_ARGS }} test --dependencies-only
