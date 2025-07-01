@@ -35,10 +35,6 @@ jobs:
                   ghc: 8.6.5
                 - snapshot: lts-12.26
                   ghc: 8.4.4
-                - snapshot: lts-11.22
-                  ghc: 8.2.2
-                - snapshot: lts-9.21
-                  ghc: 8.0.2
         steps:
         - uses: actions/checkout@v4
 
